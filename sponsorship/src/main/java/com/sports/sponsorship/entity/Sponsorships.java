@@ -1,44 +1,43 @@
 package com.sports.sponsorship.entity;
 
 import jakarta.persistence.*;
-import java.math.BigDecimal;
+import jakarta.validation.constraints.*;
+import lombok.Data;
 import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "sponsorships")
+@Data
 public class Sponsorships {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @NotNull
     @ManyToOne
-    @JoinColumn(name = "sponsor_id", nullable = false)
+    @JoinColumn(name = "sponsor_id")
     private Sponsor sponsor;
 
+    @NotNull
     @ManyToOne
-    @JoinColumn(name = "event_id", nullable = false)
+    @JoinColumn(name = "event_id")
     private Event event;
 
-    @Column(name = "contribution_amount", nullable = false)
-    private BigDecimal contributionAmount;
+    @NotNull
+    @DecimalMin(value = "0.0", message = "Contribution amount must be non-negative")
+    @Column(name = "contribution_amount")
+    private Double contributionAmount;
 
-    @Column(nullable = false)
+    @NotBlank
+    @Column(columnDefinition = "VARCHAR(50) CHECK (status IN ('PENDING', 'ACCEPTED', 'REJECTED'))")
     private String status = "PENDING";
 
-    @Column(name = "request_date", nullable = false)
+    @NotNull
+    @Column(name = "request_date")
     private LocalDateTime requestDate = LocalDateTime.now();
 
-    // Getters, Setters, Constructors
-    public Long getId() { return id; }
-    public void setId(Long id) { this.id = id; }
-    public Sponsor getSponsor() { return sponsor; }
-    public void setSponsor(Sponsor sponsor) { this.sponsor = sponsor; }
-    public Event getEvent() { return event; }
-    public void setEvent(Event event) { this.event = event; }
-    public BigDecimal getContributionAmount() { return contributionAmount; }
-    public void setContributionAmount(BigDecimal contributionAmount) { this.contributionAmount = contributionAmount; }
-    public String getStatus() { return status; }
-    public void setStatus(String status) { this.status = status; }
-    public LocalDateTime getRequestDate() { return requestDate; }
-    public void setRequestDate(LocalDateTime requestDate) { this.requestDate = requestDate; }
+    @Column(name = "decision_date")
+    private LocalDateTime decisionDate;
+
+    private String notes;
 }
