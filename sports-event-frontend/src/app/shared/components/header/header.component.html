@@ -1,0 +1,20 @@
+<header class="header">
+  <div class="nav-container">
+    <div class="logo">
+      <a routerLink="/">SportsHub</a> <!-- Logo as a link -->
+    </div>
+    <div class="nav-links">
+      <!-- Optional navigation links (can be expanded if needed) -->
+    </div>
+    <div class="auth-buttons">
+      <ng-container *ngIf="role$ | async as role">
+        <span>Welcome, {{ username$ || 'User' }}</span>
+        <button class="btn btn-primary" (click)="logout()">Logout</button>
+      </ng-container>
+      <ng-container *ngIf="!(role$ | async)">
+        <a class="btn btn-primary" routerLink="/login">Login</a>
+        <a class="btn btn-outline" routerLink="">Register</a>
+      </ng-container>
+    </div>
+  </div>
+</header>

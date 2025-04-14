@@ -1,0 +1,168 @@
+<div class="dashboard-container">
+  <!-- Sidebar -->
+  <nav class="sidebar" [ngClass]="{'collapsed': isSidebarCollapsed}">
+    <div class="sidebar-header">
+      <h2>SponsorHub</h2>
+      <button class="toggle-btn" (click)="toggleSidebar()">
+        <mat-icon>{{ isSidebarCollapsed ? 'menu' : 'close' }}</mat-icon>
+      </button>
+    </div>
+    <ul class="sidebar-menu">
+      <li [ngClass]="{'active': activeSection === 'dashboard'}" (click)="setActiveSection('dashboard')">
+        <img src="assets/dashboard.png" alt="Dashboard Icon" class="custom-icon">
+        <span class="menu-label" *ngIf="!isSidebarCollapsed">Dashboard</span>
+      </li>
+      <li [ngClass]="{'active': activeSection === 'events'}" (click)="setActiveSection('events')">
+        <img src="assets/event.png" alt="Event Icon" class="custom-icon">
+        <span class="menu-label" *ngIf="!isSidebarCollapsed">Sponsor Events</span>
+      </li>
+      <li [ngClass]="{'active': activeSection === 'sponsorships'}" (click)="setActiveSection('sponsorships')">
+        <img src="assets/deal.png" alt="Sponsorship Icon" class="custom-icon">
+        <span class="menu-label" *ngIf="!isSidebarCollapsed">My Sponsorships</span>
+      </li>
+      <li [ngClass]="{'active': activeSection === 'profile'}" (click)="setActiveSection('profile')">
+        <img src="assets/profile.png" alt="Profile Icon" class="custom-icon">
+        <span class="menu-label" *ngIf="!isSidebarCollapsed">Profile</span>
+      </li>
+      <li (click)="onLogout()">
+        <img src="assets/logout.png" alt="Dashboard Icon" class="custom-icon">
+        <span class="menu-label" *ngIf="!isSidebarCollapsed">Logout</span>
+      </li>
+    </ul>
+  </nav>
+
+  <!-- Main Content -->
+  <main class="main-content" [ngClass]="{'sidebar-collapsed': isSidebarCollapsed}">
+    <!-- Dashboard -->
+    <section *ngIf="activeSection === 'dashboard'" class="dashboard-card">
+      <mat-card>
+        <mat-card-header>
+          <mat-card-title>Welcome to Your Dashboard</mat-card-title>
+        </mat-card-header>
+        <mat-card-content>
+          <div class="overview-grid">
+            <mat-card class="overview-item">
+              <mat-card-title>{{ sponsorships.length }}</mat-card-title>
+              <mat-card-content>Active Sponsorships</mat-card-content>
+            </mat-card>
+            <mat-card class="overview-item">
+              <mat-card-title>{{ events.length }}</mat-card-title>
+              <mat-card-content>Available Events</mat-card-content>
+            </mat-card>
+            <mat-card class="overview-item">
+              <mat-card-title>{{ totalContribution | currency }}</mat-card-title>
+              <mat-card-content>Total Contributions</mat-card-content>
+            </mat-card>
+          </div>
+        </mat-card-content>
+      </mat-card>
+    </section>
+
+    <!-- Sponsor Events -->
+    <section *ngIf="activeSection === 'events'" class="dashboard-card">
+      <mat-card>
+        <mat-card-header>
+          <mat-card-title>Sponsor Events</mat-card-title>
+        </mat-card-header>
+        <mat-card-content>
+          <form [formGroup]="requestForm" (ngSubmit)="onRequest()">
+            <mat-form-field appearance="outline">
+              <mat-label>Event</mat-label>
+              <mat-select formControlName="eventId" required>
+                <mat-option *ngFor="let event of events" [value]="event.id">{{ event.name }}</mat-option>
+              </mat-select>
+            </mat-form-field>
+            <mat-form-field appearance="outline">
+              <mat-label>Contribution Amount ($)</mat-label>
+              <input matInput type="number" formControlName="contributionAmount" required>
+            </mat-form-field>
+            <button mat-raised-button type="submit" [disabled]="requestForm.invalid">Request Sponsorship</button>
+          </form>
+          <h3>Available Events</h3>
+          <mat-table [dataSource]="events">
+            <ng-container matColumnDef="name">
+              <mat-header-cell *matHeaderCellDef>Name</mat-header-cell>
+              <mat-cell *matCellDef="let event">{{ event.name }}</mat-cell>
+            </ng-container>
+            <ng-container matColumnDef="date">
+              <mat-header-cell *matHeaderCellDef>Date</mat-header-cell>
+              <mat-cell *matCellDef="let event">{{ event.date | date }}</mat-cell>
+            </ng-container>
+            
+            <mat-header-row *matHeaderRowDef="eventColumns"></mat-header-row>
+            <mat-row *matRowDef="let row; columns: eventColumns;"></mat-row>
+          </mat-table>
+        </mat-card-content>
+      </mat-card>
+    </section>
+
+    <!-- My Sponsorships -->
+    <section *ngIf="activeSection === 'sponsorships'" class="dashboard-card">
+      <mat-card>
+        <mat-card-header>
+          <mat-card-title>My Sponsorships</mat-card-title>
+        </mat-card-header>
+        <mat-card-content>
+          <mat-table [dataSource]="sponsorships">
+            <ng-container matColumnDef="eventName">
+              <mat-header-cell *matHeaderCellDef>Event</mat-header-cell>
+              <mat-cell *matCellDef="let sponsorship">{{ sponsorship.event.name }}</mat-cell>
+            </ng-container>
+            <ng-container matColumnDef="amount">
+              <mat-header-cell *matHeaderCellDef>Amount</mat-header-cell>
+              <mat-cell *matCellDef="let sponsorship">{{ sponsorship.contributionAmount | currency }}</mat-cell>
+            </ng-container>
+            <ng-container matColumnDef="status">
+              <mat-header-cell *matHeaderCellDef>Status</mat-header-cell>
+              <mat-cell *matCellDef="let sponsorship">{{ sponsorship.status }}</mat-cell>
+            </ng-container>
+            <ng-container matColumnDef="requestDate">
+              <mat-header-cell *matHeaderCellDef>Request Date</mat-header-cell>
+              <mat-cell *matCellDef="let sponsorship">{{ sponsorship.requestDate | date }}</mat-cell>
+            </ng-container>
+            <mat-header-row *matHeaderRowDef="sponsorshipColumns"></mat-header-row>
+            <mat-row *matRowDef="let row; columns: sponsorshipColumns;"></mat-row>
+          </mat-table>
+        </mat-card-content>
+      </mat-card>
+    </section>
+
+    <!-- Profile -->
+    <section *ngIf="activeSection === 'profile'" class="dashboard-card">
+      <mat-card>
+        <mat-card-header>
+          <mat-card-title>Profile</mat-card-title>
+        </mat-card-header>
+        <mat-card-content>
+          <h3>Update Profile</h3>
+          <form [formGroup]="updateForm" (ngSubmit)="onUpdate()">
+            <mat-form-field appearance="outline">
+              <mat-label>Name</mat-label>
+              <input matInput formControlName="name" required>
+            </mat-form-field>
+            <mat-form-field appearance="outline">
+              <mat-label>Company Name</mat-label>
+              <input matInput formControlName="companyName" required>
+            </mat-form-field>
+            <mat-form-field appearance="outline">
+              <mat-label>Email</mat-label>
+              <input matInput formControlName="email" type="email" required>
+            </mat-form-field>
+            <mat-form-field appearance="outline">
+              <mat-label>Phone</mat-label>
+              <input matInput formControlName="phone">
+            </mat-form-field>
+            <mat-form-field appearance="outline">
+              <mat-label>Industry</mat-label>
+              <input matInput formControlName="industry">
+            </mat-form-field>
+            <button mat-raised-button type="submit" [disabled]="updateForm.invalid">Update</button>
+          </form>
+          <h3>Account Actions</h3>
+          <button mat-raised-button color="warn" (click)="onDeactivate()">Deactivate Account</button>
+          <!-- <button mat-raised-button color="accent" (click)="onReactivate()">Reactivate Account</button> -->
+        </mat-card-content>
+      </mat-card>
+    </section>
+  </main>
+</div>
